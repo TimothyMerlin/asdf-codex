@@ -97,8 +97,12 @@ install_version() {
 	(
 		mkdir -p "$install_path"
 
-		# If nothing was downloaded, exit cleanly for asdf plugin test
-		if ! ls "$ASDF_DOWNLOAD_PATH" | grep -q '^codex-'; then
+		shopt -s nullglob
+		codex_paths=("$ASDF_DOWNLOAD_PATH"/codex-*)
+		shopt -u nullglob
+
+		# If no matching files exist, exit cleanly
+		if [ ${#codex_paths[@]} -eq 0 ]; then
 		    exit 0
 		fi
 
