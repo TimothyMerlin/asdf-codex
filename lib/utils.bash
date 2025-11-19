@@ -39,20 +39,20 @@ download_release() {
 
 	# Detect OS
 	case "$(uname -s)" in
-		Darwin) os="apple-darwin" ;;
-		Linux)  os="unknown-linux-gnu" ;;
-		*)
-			fail "Unsupported OS: $(uname -s)"
-			;;
+	Darwin) os="apple-darwin" ;;
+	Linux) os="unknown-linux-gnu" ;;
+	*)
+		fail "Unsupported OS: $(uname -s)"
+		;;
 	esac
 
 	# Detect architecture
 	case "$(uname -m)" in
-		x86_64) arch="x86_64" ;;
-		arm64|aarch64) arch="aarch64" ;;
-		*)
-			fail "Unsupported architecture: $(uname -m)"
-			;;
+	x86_64) arch="x86_64" ;;
+	arm64 | aarch64) arch="aarch64" ;;
+	*)
+		fail "Unsupported architecture: $(uname -m)"
+		;;
 	esac
 
 	# Fetch release metadata
@@ -60,25 +60,25 @@ download_release() {
 	release=$(curl -s \
 		"https://api.github.com/repos/openai/codex/releases/tags/${version}")
 
-	echo "$release" | jq -e '.assets' >/dev/null 2>&1 \
-        || exit 0
+	echo "$release" | jq -e '.assets' >/dev/null 2>&1 ||
+		exit 0
 
 	# Select correct .tar.gz asset for OS + arch
 	url=$(
-	  echo "$release" \
-	    | jq -r --arg arch "$arch" --arg os "$os" '
+		echo "$release" |
+			jq -r --arg arch "$arch" --arg os "$os" '
 	        .assets[]
 	        | select(.name | type == "string")
 	        | select(.name | startswith("codex-"))
 	        | select(.name | test("^codex-" + $arch + "-" + $os + "\\.tar\\.gz$"))
 	        | .browser_download_url
-	      ' \
-	    | head -n 1
+	      ' |
+			head -n 1
 	)
 
 	# If version exists but architecture is not available, treat as "not installable"
 	if [ -z "$url" ]; then
-	    exit 0
+		exit 0
 	fi
 
 	echo "* Downloading $TOOL_NAME release $version ($arch-$os)..."
@@ -103,7 +103,7 @@ install_version() {
 
 		# If no matching files exist, exit cleanly
 		if [ ${#codex_paths[@]} -eq 0 ]; then
-		    exit 0
+			exit 0
 		fi
 
 		cp -r "$ASDF_DOWNLOAD_PATH"/codex-* "$install_path"/codex
